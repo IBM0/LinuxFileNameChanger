@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <experimental/filesystem>
 #include <stack>
-std::string RenameFiles::dataPath = "/home/mert/Movies";
+std::string RenameFiles::dataPath;
 namespace fs = std::experimental::filesystem;
 
 void RenameFiles::ManageRenaming(int argc, char **argv)
@@ -38,18 +38,25 @@ void RenameFiles::ManageRenaming(int argc, char **argv)
     }
 
     std::transform(option.begin(), option.end(), option.begin(), ::tolower);
-    if (option == "recursive")
-    {
-        RecursiveProcess();
-    }
-    else if (option == "normal")
-    {
-        NormalProcess();
-    }
-    else
+    if (!(option == "recursive" || option == "normal"))
     {
         std::cout << "Wrong expression" << std::endl;
         return;
+    }
+
+    std::cout << "File names in " << boldred << dataPath << reset << " with " << boldred << option << reset << " option will change" << std::endl;
+    std::cout << "These things cannot be undone" << std::endl;
+    std::cout << "Do you really want to proceed[Y/n]? ";
+    std::string really;
+    getline(std::cin, really);
+    std::transform(option.begin(), option.end(), option.begin(), ::tolower);
+    if (really == "y")
+    {
+        option == "recursive" ? RecursiveProcess() : NormalProcess();
+    }
+    else
+    {
+        std::cout << "Abort" << std::endl;
     }
 }
 void RenameFiles::NormalProcess()
