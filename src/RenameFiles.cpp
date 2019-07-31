@@ -7,6 +7,8 @@
 std::string RenameFiles::dataPath;
 namespace fs = std::experimental::filesystem;
 
+bool passing_temp = false;
+
 void RenameFiles::ManageRenaming(int argc, char **argv)
 {
     std::string option;
@@ -18,6 +20,10 @@ void RenameFiles::ManageRenaming(int argc, char **argv)
 
     else if (argc == 1)
     {
+        std::cout << boldblue << "Change File Names For Linux" << reset << std::endl;
+        std::cout << "Format: rename [path] [option]" << std::endl;
+        std::cout << "Options: normal(default) & recursive\n"
+                  << std::endl;
 
         std::cout << "Path: ";
         std::getline(std::cin, dataPath);
@@ -64,15 +70,21 @@ void RenameFiles::NormalProcess()
     std::vector<std::string> cvec;
     for (const auto &entry : fs::directory_iterator(dataPath))
     {
-        std::cout << entry.path().filename() << std::endl;
+        if (entry.path().filename() == "temp")
+        {
+            std::cout << boldblue << "Passing temp" << reset << std::endl;
+            continue;
+        }
+
         std::string newName = Rename(entry.path().filename());
         try
         {
             fs::rename(entry.path(), entry.path().parent_path().string() + "/" + newName);
+            std::cout << entry.path().filename() << std::endl;
         }
         catch (const std::exception &e)
         {
-            std::cout << boldred << "Passing File" << reset << '\n';
+            std::cout << boldred << "Passing File: " << entry.path().filename() << reset << '\n';
         }
     }
 }
@@ -82,8 +94,19 @@ void RenameFiles::RecursiveProcess()
     std::stack<fs::v1::__cxx11::path> stackfiles;
     for (const auto &entry : fs::recursive_directory_iterator(dataPath))
     {
-        std::cout << entry.path() << std::endl;
-        stackfiles.push(entry.path());
+        if (entry.path().string().find("temp") != std::string::npos)
+        {
+            if (!passing_temp)
+            {
+                std::cout << boldblue << "Passing temp" << reset << std::endl;
+                passing_temp = true;
+            }
+        }
+        else
+        {
+            std::cout << entry.path() << std::endl;
+            stackfiles.push(entry.path());
+        }
     }
 
     while (!stackfiles.empty())
