@@ -4,7 +4,7 @@
 
 *For Download and Build*
   ```
-  git clone https://github.com/IBM0/LinuxFileNameChanger 
+  git clone https://github.com/Marceliny/LinuxFileNameChanger 
   cd LinuxFileNameChanger
   mkdir build
   cd build
